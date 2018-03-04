@@ -1,22 +1,24 @@
 """Generate Markov text from text files."""
 
 from random import choice
+import sys
 
+def open_and_read_file():
 
-def open_and_read_file(file_path):
     """Take file path as string; return text as string.
 
     Takes a string that is a file path, opens the file, and turns
     the file's contents as one string of text.
     """
+    file_path = sys.argv[1]
+    #print file_path
+    file_data = open(file_path, 'r')
+    gettysburg = file_data.read()
 
-    with open(file_path, 'r') as f:
-        green_eggs = f.read()
-
-    return green_eggs
+    return gettysburg
 
 
-def make_chains(text_string):
+def make_chains(text_string, n):
     """Take input text as string; return dictionary of Markov chains.
 
     A chain will be a key that consists of a tuple of (word1, word2)
@@ -42,49 +44,90 @@ def make_chains(text_string):
     """
     chains = {}
 
-    green_eggs = open_and_read_file(input_path)
-    word_list = green_eggs.split()
-    for item in range(0, len(word_list) - 2):
-        if item == len(word_list) - 3:
-            chains[(word_list[item + 1], word_list[item + 2])] = [None]
-        tup = (word_list[item], word_list[item + 1])
-        if tup not in chains:
-            chains[tup] = [word_list[item + 2]]
+    gettysburg = open_and_read_file()
+    word_list = gettysburg.split()
+
+    #iterating through length of word_list
+    for item in range(0, len(word_list) - n):
+        key_list = []
+        #spefical case, last items
+        # if item == len(word_list) - 3:
+        #     chains[(word_list[item + 1], word_list[item + 2])] = [None]
+        #iterating to find tuple_keys until n
+        for count in range(item, n + item):
+
+            key_list.append(word_list[count])
+            #print key_list
+        tuple_key = tuple(key_list)
+
+        #print tuple_key
+
+        if tuple_key not in chains:
+
+            chains[tuple_key] = [word_list[item + n]]
         else:
-            chains[tup].append(word_list[item + 2])
+            chains[tuple_key].append(word_list[item + n])
 
     # print word_list
+
     return chains
 
     # your code goes here
 
-    # return chains
+    #print chains
 
 
 def make_text(chains):
-    """Return text from chains."""
-
+    """Return text from chains.
+    """
+    for keys, values in chains.items():
+        print keys, values
+    print
     words = []
-    for keys, values in chains:
-        words.append(keys)
-        value = choice([values])
-        words.append(value)
 
-        #keys = words[keys]
-    # your code goes here
+    #1 create a link, which is a tuple from chains dic
+    #2 extend tuple key into word list
+    #3 get random word from list of words, list is value of key
+    #4 make a new key out of the second word from link[1] and the random that was
+    #selected in previous step
+    #5 check/look up to see if new key which is currently link to see if it is in
+    #the dic, if yes, repheat ste 4
+    #if no, you are done! return words list joined as string
+
+    #advanced logic loop
+    # link_key = choice(chains.keys())
+    # words.extend(link_key)
+
+    # while link_key in chains:
+    #     random_word = choice(chains[link_key])
+    #     words.append(random_word)
+    #     link_key = (link_key[1], random_word)
+
+    link_key = choice(chains.keys())
+    words.extend(link_key)
+    random_word = choice(chains[link_key])
+    words.append(random_word)
+    while True:
+
+        link_key = (link_key[1], random_word)
+
+        if link_key in chains:
+            random_word = choice(chains[link_key])
+            words.append(random_word)
+        else:
+            break
+
     print " ".join(words)
-    #return " ".join(words)
+    return " ".join(words)
 
 
-input_path = "green-eggs.txt"
+#input_path = "getstysburg.txt"'''
 
-# Open the file and turn it into one long string
-input_text = open_and_read_file(input_path)
+#Open the file and turn it into one long string
+input_text = open_and_read_file()
 
 # Get a Markov chain
-chains = make_chains(input_text)
+chains = make_chains(input_text, 2)
 
 # Produce random text
 random_text = make_text(chains)
-
-print random_text
